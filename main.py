@@ -5,8 +5,9 @@ import datetime as dt
 from mydb import *
 from tkinter import messagebox
 import tkinter as tk
+from tkinter import simpledialog
 import matplotlib.pyplot as plt
-
+import os
 
 
 # object for database
@@ -17,6 +18,32 @@ count = 0
 selected_rowid = 0
 
 # functions
+
+# Function creates a file if it doesn't exist
+# and sets the Initial amount
+
+
+def readInitialAmount(filename):
+    if not os.path.exists(filename):
+        with open(filename, 'w') as f:
+            f.write('5000')
+            return '5000'
+    else:
+        with open(filename, 'r') as f:
+            return f.readline()
+
+
+# This function updates the Initial Amount in file passed as parameter
+def updateInitialAmount(filename, new_first_line):
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    lines[0] = str(new_first_line) + '\n'
+    with open(filename, 'w') as f:
+        for line in lines:
+            f.write(line)
+
+
+readInitialAmount("initialAmount")
 
 
 def saveRecord():
@@ -99,7 +126,7 @@ def totalBalance():
     for i in f:
         for j in i:
             messagebox.showinfo(
-                'Current Balance: ', f"Total Expense: ' {j} \nBalance Remaining: {5000 - j}")
+                'Current Balance: ', f"Total Expense: ' {j} \nBalance Remaining: {int(readInitialAmount('initialAmount')) - j}")
 
 
 def refreshData():
@@ -127,10 +154,13 @@ def getMostExpensiveItem():
 
 
 def pieData():
+    unusedAmount = int(readInitialAmount('initialAmount')) - spentAmount()
     labels = data.fetchRecord(query="select item_name from expense_record")
     labelArray = [element[0] for element in labels]
     labelData = data.fetchRecord(query="select item_price from expense_record")
     labelDataArray = [element[0] for element in labelData]
+    labelArray.append('Unused Amount')
+    labelDataArray.append(unusedAmount)
     plt.pie(labelDataArray, labels=labelArray)
     plt.show()
 
@@ -149,6 +179,15 @@ def isDatabaseEmpty():
 def backToMain():
     ws.withdraw()
     entry_window.deiconify()
+
+
+def changeBalance():
+    userInput = simpledialog.askinteger(title="Adjust Balance", prompt='Enter total money you currently have:           ')
+    if userInput is not None:
+        updateInitialAmount('initialAmount', userInput)
+    else:
+        userInput = readInitialAmount('initialAmount')
+        updateInitialAmount('initialAmount', userInput)
 
 
 # create tkinter object
@@ -179,7 +218,7 @@ dopvar = StringVar()
 
 
 # add elements to second window
-label = tk.Label(entry_window, text="Spendwise", font=f, fg='#424242')
+label = tk.Label(entry_window, text="SpendWise", font=f, fg='#424242')
 label.pack()
 
 # Checking if database is empty or not, then showing the button/labels
@@ -196,6 +235,9 @@ if isDatabaseEmpty():
 button = tk.Button(entry_window, text="Start Adding Entries", font=f,
                    bg="#80CBC4", borderwidth=0, fg='white', command=startMainWindow, width=20)
 button.pack()
+adjustBalance = tk.Button(entry_window, text='Adjust Balance', font=f, bg="#80CBC4", borderwidth=0, fg='white', width=20, command=changeBalance)
+adjustBalance.pack(padx=5, pady=10)
+
 closeButton = tk.Button(entry_window, text="Close Window", font=f, command=lambda: ws.destroy(), bg='#80CBC4', fg='white', borderwidth=0, width=20)
 closeButton.pack(pady=10, padx=10)
 
