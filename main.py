@@ -9,6 +9,7 @@ from tkinter import simpledialog
 import matplotlib.pyplot as plt
 import os
 
+# Feature idea: add personalized goals, like user can set a goal to save 3000 rupees.
 
 # object for database
 data = Database(db='test.db')
@@ -47,6 +48,7 @@ readInitialAmount("initialAmount")
 
 
 def saveRecord():
+    # Saves the current Record entered by user.
     if len(item_name.get()) == 0:
         return
     global data
@@ -56,17 +58,20 @@ def saveRecord():
 
 
 def setDate():
+    # Returns the Current date.
     date = dt.datetime.now()
     dopvar.set(f'{date:%d %B %Y}')
 
 
 def clearEntries():
+    # Clears the entries in input boxes.
     item_name.delete(0, 'end')
     item_amt.delete(0, 'end')
     transaction_date.delete(0, 'end')
 
 
 def fetch_records():
+    # Fetches all the records from database to show in UI.
     f = data.fetchRecord('select rowid, * from expense_record')
     global count
     for rec in f:
@@ -77,6 +82,7 @@ def fetch_records():
 
 
 def select_record(event):
+    # Used to Select the specific record in UI
     global selected_rowid
     selected = tv.focus()
     val = tv.item(selected, 'values')
@@ -92,6 +98,7 @@ def select_record(event):
 
 
 def update_record():
+    # Updates the Current Selected Record
     if len(item_name.get()) == 0:
         return
     global selected_rowid
@@ -113,6 +120,7 @@ def update_record():
 
 
 def spentAmount():
+    # Returns the current total spent amount.
     f = data.fetchRecord(query="Select sum(item_price) from expense_record")
     totalExpense = 0
     for i in f:
@@ -122,6 +130,7 @@ def spentAmount():
 
 
 def totalBalance():
+    # Shows the Total Expense and remaining balance.
     f = data.fetchRecord(query="Select sum(item_price) from expense_record")
     for i in f:
         for j in i:
@@ -130,12 +139,14 @@ def totalBalance():
 
 
 def refreshData():
+    # Refreshes the data in UI upon any changes.
     for item in tv.get_children():
         tv.delete(item)
     fetch_records()
 
 
 def deleteRow():
+    # Deletes the Selected Row
     global selected_rowid
     data.removeRecord(selected_rowid)
     refreshData()
@@ -143,17 +154,20 @@ def deleteRow():
 
 
 def startMainWindow():
+    # Starts the Main Window
     entry_window.withdraw()
     ws.deiconify()
 
 
 def getMostExpensiveItem():
+    # Returns the Most Expensive Item
     item = data.fetchRecord(
         query="SELECT item_name, item_price FROM expense_record WHERE item_price = (SELECT MAX(item_price) FROM expense_record);")
     return item
 
 
 def pieData():
+    # Fetches the data from database then uses it to show a pie chart.
     unusedAmount = int(readInitialAmount('initialAmount')) - spentAmount()
     labels = data.fetchRecord(query="select item_name from expense_record")
     labelArray = [element[0] for element in labels]
@@ -166,10 +180,12 @@ def pieData():
 
 
 def onClosing():
+    # Makes sure to close all the running processes on exit.
     ws.destroy()
 
 
 def isDatabaseEmpty():
+    # Returns true or false based on database is empty or not.
     flag = data.fetchRecord(query="select item_name from expense_record")
     if len(flag) != 0:
         return True
@@ -177,11 +193,13 @@ def isDatabaseEmpty():
 
 
 def backToMain():
+    # Takes you to back to the main window.
     ws.withdraw()
     entry_window.deiconify()
 
 
 def changeBalance():
+    # Shows a dialog box to change the total balance.
     userInput = simpledialog.askinteger(title="Adjust Balance", prompt='Enter total money you currently have:           ')
     if userInput is not None:
         updateInitialAmount('initialAmount', userInput)
@@ -206,11 +224,9 @@ entry_window.minsize(500, 300)
 entry_window.maxsize(500, 300)
 entry_window.protocol("WM_DELETE_WINDOW", onClosing)
 entry_window.config(bg='#F5F5F5')
-# entry_window.withdraw()
 
 
 # variables
-# f = ('Times new roman', 14)
 f = ('Open Sans', 14)
 namevar = StringVar()
 amtvar = IntVar()
