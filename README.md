@@ -59,6 +59,9 @@ This is a Python-based expense tracker that allows users to keep track of their 
 
 The application uses an sqlite3 database to store expense data. The database is created automatically when the application is run for the first time, and is stored in a file called \`test.db\` in the project directory. Also the application automatically creates a text file named \`initialAmount.db\` to store the total balance.
 
+## Run the application directly without compiler
+Download the folder from https://drive.google.com/drive/folders/1dfXyXHHeSjj9GtWu2rD9k9TN2oMCZ5OO?usp=drive_link and run spendWise.exe
+
 ## Credits
 
 This project was created by \`Gunjan\` as a personal project. It uses the \`tkinter\`, \`matplotlib\`, and \`sqlite3\` libraries, which are all open source.
